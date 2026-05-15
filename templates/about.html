@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<div class="about-hero">
+  <div class="container text-center">
+    <i class="bi bi-airplane-engines-fill display-3 mb-3"></i>
+    <h1 class="fw-bold">AeroLedger</h1>
+    <p class="fs-5 opacity-90">Real-Time Airline Accounting Intelligence</p>
+    <p class="mx-auto opacity-75" style="max-width:640px">
+      The only free public platform combining IFRS 16 · IAS 21 · Ind AS 116 · ASC 842 · IATA AAG
+      in a single, live, downloadable workbook — built for everyone who thinks about airline finance.
+    </p>
+  </div>
+</div>
+
+<div class="container py-5">
+
+  <!-- Audience cards -->
+  <h2 class="fw-bold text-center mb-4">Who Is This For?</h2>
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="card audience-card p-4 h-100">
+        <i class="bi bi-briefcase-fill display-5 text-primary mb-3"></i>
+        <h5 class="fw-bold">Airline Finance & Treasury Teams</h5>
+        <p class="text-muted">Quickly benchmark lease rates, compute IFRS 16 amortisation for any aircraft, compare accounting treatment across jurisdictions, and download a ready-to-use audit-quality Excel workbook in seconds.</p>
+        <ul class="text-muted small">
+          <li>Live FX rates (IAS 21 closing rate method)</li>
+          <li>Parallel ledgers in USD, GBP, INR, SGD</li>
+          <li>Forex revaluation & year-end closing entries</li>
+          <li>Air India A320neo Ind AS 116 case study</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card audience-card green p-4 h-100">
+        <i class="bi bi-airplane display-5 text-success mb-3"></i>
+        <h5 class="fw-bold">Aircraft Enthusiasts</h5>
+        <p class="text-muted">Ever wondered what it really costs to lease an A320neo? How much interest Air India pays on its fleet? Which airlines lease vs buy, and why? AeroLedger makes the numbers transparent and explorable.</p>
+        <ul class="text-muted small">
+          <li>Real-world lease rates: A320neo to A380</li>
+          <li>Market availability: tight / moderate / loose</li>
+          <li>Lease vs Buy comparison for narrow & wide-body</li>
+          <li>8-airline standards comparison table</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card audience-card teal p-4 h-100">
+        <i class="bi bi-mortarboard-fill display-5 mb-3" style="color:#008080"></i>
+        <h5 class="fw-bold">Students & Researchers</h5>
+        <p class="text-muted">Learning IFRS 16, IAS 21, or airline accounting? AeroLedger is a live reference implementation — every formula, every standard paragraph, every journal entry explained and visible in the Excel download.</p>
+        <ul class="text-muted small">
+          <li>Full IFRS 16 EIR amortisation schedules</li>
+          <li>IAS 21 FX translation methodology</li>
+          <li>ASC 842 vs IFRS 16 vs Ind AS 116 differences</li>
+          <li>Standards Reference sheet with all paragraph citations</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Standards -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <h2 class="fw-bold text-center mb-4">Accounting Standards Applied</h2>
+      <div class="card border-0 shadow-sm p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <h6 class="fw-bold text-primary">Lease Accounting</h6>
+            <div>
+              <span class="standard-badge">IFRS 16</span>
+              <span class="standard-badge">Ind AS 116</span>
+              <span class="standard-badge">ASC 842</span>
+              <span class="standard-badge">HKFRS 16</span>
+            </div>
+            <p class="text-muted small mt-2">Lessee recognises right-of-use asset and lease liability at PV of future payments. Interest via effective interest rate method. ROU asset depreciated straight-line.</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="fw-bold text-primary">Foreign Exchange</h6>
+            <div>
+              <span class="standard-badge">IAS 21</span>
+              <span class="standard-badge">IFRS 21</span>
+              <span class="standard-badge">Ind AS 11</span>
+            </div>
+            <p class="text-muted small mt-2">Monetary items translated at closing rate. Exchange differences to P&L. Non-monetary items at historical rate. Parallel ledgers in USD, GBP, INR, SGD.</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="fw-bold text-primary">Industry Standards</h6>
+            <div>
+              <span class="standard-badge">IATA AAG</span>
+              <span class="standard-badge">IAS 37</span>
+              <span class="standard-badge">IAS 16</span>
+            </div>
+            <p class="text-muted small mt-2">IATA Airline Accounting Guidelines for chart of accounts and revenue recognition. IAS 37 for maintenance reserves. IAS 16 for owned aircraft.</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="fw-bold text-primary">Financial Instruments & Tax</h6>
+            <div>
+              <span class="standard-badge">IFRS 9</span>
+              <span class="standard-badge">IAS 23</span>
+              <span class="standard-badge">IAS 12</span>
+              <span class="standard-badge">IAS 7</span>
+            </div>
+            <p class="text-muted small mt-2">IFRS 9 for fuel hedges. IAS 23 for borrowing costs. IAS 12 for deferred tax on FX and lease differences. IAS 7 for cash flow presentation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Excel Workbook breakdown -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <h2 class="fw-bold text-center mb-4">What's In the Excel Workbook?</h2>
+      <div class="row g-3">
+        {% set sheets = [
+          ("bi-speedometer2","Dashboard","Live FX rates, balance sheet summary, income statement, key ratios, FX exposure by currency."),
+          ("bi-journal-text","General Ledger EUR","All transactions in base EUR currency with running balance and conditional formatting."),
+          ("bi-currency-dollar","Parallel Ledgers (×4)","USD · GBP · INR · SGD translated ledgers applying IAS 21 average and closing rates."),
+          ("bi-arrow-left-right","Forex Revaluation","Unrealised FX gains/losses on all monetary items, booking vs closing rate comparison."),
+          ("bi-percent","Interest Calculation","Borrowing costs (IAS 23) and IFRS 16 EIR interest for all leases."),
+          ("bi-calendar3","IFRS 16 Lease Schedule","Full 144-period amortisation for all leases with current period highlighted."),
+          ("bi-airplane","Air India A320neo","Complete Ind AS 116 analysis: parameters, current snapshot, annual roll-forward, balance sheet split."),
+          ("bi-archive","Year-End Closing","Closing rate revaluation journal entries, FX P&L summary, tax effect."),
+          ("bi-book","Standards Reference","All 12 standards applied with recognition criteria, measurement basis, and sheet references."),
+          ("bi-bar-chart","Airline Comparison","8-airline standards comparison, own fleet profitability, lease vs buy, market rate benchmarks."),
+        ] %}
+        {% for icon, name, desc in sheets %}
+        <div class="col-md-6">
+          <div class="d-flex gap-3 align-items-start p-3 bg-white rounded shadow-sm">
+            <i class="bi {{ icon }} fs-4 text-primary mt-1"></i>
+            <div>
+              <div class="fw-semibold">{{ name }}</div>
+              <div class="text-muted small">{{ desc }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="text-center mt-4">
+        <a href="/download/excel" class="btn btn-success btn-lg">
+          <i class="bi bi-download me-2"></i>Download Full Workbook (13 Sheets)
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business model / future -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <h2 class="fw-bold text-center mb-4">Roadmap</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card border-success p-3 h-100">
+            <div class="fw-bold text-success mb-2"><i class="bi bi-check-circle-fill me-2"></i>Available Now — Free</div>
+            <ul class="text-muted small mb-0">
+              <li>Live FX dashboard (15s refresh)</li>
+              <li>Single-aircraft lease calculator</li>
+              <li>13-sheet Excel download</li>
+              <li>8-airline comparison table</li>
+              <li>Lease vs Buy analysis</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-warning p-3 h-100">
+            <div class="fw-bold text-warning mb-2"><i class="bi bi-clock-fill me-2"></i>Coming Soon</div>
+            <ul class="text-muted small mb-0">
+              <li>Multi-aircraft portfolio view</li>
+              <li>PDF report generation</li>
+              <li>Historical FX rate analysis</li>
+              <li>Airline fleet comparison tool</li>
+              <li>Mobile app</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-primary p-3 h-100">
+            <div class="fw-bold text-primary mb-2"><i class="bi bi-stars me-2"></i>Enterprise / API</div>
+            <ul class="text-muted small mb-0">
+              <li>REST API for lease calculations</li>
+              <li>Bulk portfolio upload</li>
+              <li>Custom jurisdiction configurations</li>
+              <li>White-label Excel templates</li>
+              <li>ERP integration connectors</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="alert alert-secondary text-center">
+    <i class="bi bi-shield-exclamation me-2"></i>
+    <strong>Disclaimer:</strong> AeroLedger is provided for educational and analytical purposes only.
+    It is not financial advice. Lease rates and financial data are based on publicly available industry sources
+    (AVAC, IBA, CAPA, airline annual reports). Always consult a qualified professional before making financial decisions.
+  </div>
+
+</div>
+{% endblock %}

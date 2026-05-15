@@ -1,0 +1,83 @@
+/* AeroLedger — Airline theme overrides on Bootstrap 5 */
+
+:root {
+  --navy:  #003087;
+  --green: #1F5C1F;
+  --amber: #FFF2CC;
+  --red:   #FFCCCC;
+  --green-light: #CCFFCC;
+}
+
+body { font-family: 'Calibri', 'Segoe UI', sans-serif; background: #f4f6fb; }
+
+/* Navbar */
+.navbar { background: var(--navy) !important; }
+.navbar-brand { font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; color: #fff !important; }
+.navbar-brand span { color: #7ec8e3; }
+.nav-link { color: rgba(255,255,255,.85) !important; font-weight: 500; }
+.nav-link:hover, .nav-link.active { color: #fff !important; text-decoration: underline; }
+
+/* Hero banner */
+.hero { background: linear-gradient(135deg, var(--navy) 60%, #1a4fa0 100%);
+        color: #fff; padding: 3.5rem 0 2.5rem; }
+.hero h1 { font-size: 2.2rem; font-weight: 700; }
+.hero p  { font-size: 1.1rem; opacity: .9; }
+
+/* Section headers */
+.section-header { background: var(--navy); color: #fff;
+                  border-radius: 6px 6px 0 0; padding: .6rem 1rem;
+                  font-weight: 700; font-size: .95rem; letter-spacing: .5px; }
+.section-header.green { background: var(--green); }
+.section-header.purple { background: #4B0082; }
+.section-header.teal   { background: #008080; }
+
+/* FX cards */
+.fx-card { border-left: 5px solid var(--navy); transition: transform .15s; }
+.fx-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,48,135,.12); }
+.fx-rate { font-size: 2rem; font-weight: 700; color: var(--navy); }
+.fx-currency { font-size: .8rem; font-weight: 600; letter-spacing: 1px; color: #555; }
+.badge-live { background: var(--green); color: #fff; font-size: .7rem; padding: 2px 7px; border-radius: 20px; }
+.badge-sim  { background: #e67e00; color: #fff; font-size: .7rem; padding: 2px 7px; border-radius: 20px; }
+
+/* Summary cards */
+.summary-card { border-radius: 8px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+.summary-card .card-header { background: var(--navy); color: #fff; font-weight: 600; font-size: .88rem; }
+.summary-card .card-body  { font-size: 1.6rem; font-weight: 700; }
+.profit-positive { background: #CCFFCC; color: #1F5C1F; }
+.profit-negative { background: #FFCCCC; color: #CC0000; }
+
+/* Calculator */
+.calc-card { border-radius: 8px; box-shadow: 0 3px 12px rgba(0,0,0,.09); }
+.verdict-profit { background: #CCFFCC; border-left: 6px solid #1F5C1F;
+                  color: #1F5C1F; padding: 1rem 1.4rem; border-radius: 6px;
+                  font-size: 1.2rem; font-weight: 700; }
+.verdict-highcost { background: #FFCCCC; border-left: 6px solid #CC0000;
+                    color: #CC0000; padding: 1rem 1.4rem; border-radius: 6px;
+                    font-size: 1.2rem; font-weight: 700; }
+.schedule-table th { background: var(--navy); color: #fff; font-size: .82rem; }
+.schedule-table td { font-size: .85rem; }
+
+/* About page */
+.about-hero { background: linear-gradient(135deg, var(--navy), #1a4fa0);
+              color: #fff; padding: 4rem 0 3rem; }
+.audience-card { border-top: 4px solid var(--navy); border-radius: 8px;
+                 box-shadow: 0 3px 10px rgba(0,0,0,.07); }
+.audience-card.green { border-top-color: var(--green); }
+.audience-card.teal  { border-top-color: #008080; }
+.standard-badge { display: inline-block; background: var(--navy); color: #fff;
+                  padding: 4px 12px; border-radius: 20px; font-size: .78rem;
+                  font-weight: 600; margin: 3px; }
+
+/* Footer */
+footer { background: #1a1a2e; color: #aaa; font-size: .82rem; padding: 1.8rem 0; }
+footer a { color: #7ec8e3; text-decoration: none; }
+
+/* Pulse animation for live indicator */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.pulse { animation: pulse 2s infinite; }
+
+/* Responsive */
+@media (max-width: 576px) {
+  .hero h1 { font-size: 1.5rem; }
+  .fx-rate  { font-size: 1.5rem; }
+}

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}Lease Calculator{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <div class="container">
+    <h1><i class="bi bi-calculator-fill me-2"></i>Aircraft Lease Calculator</h1>
+    <p class="mb-0">IFRS 16 / Ind AS 116 amortisation schedule — enter any aircraft and lease parameters to get a full analysis with profit/loss assessment.</p>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="row g-4">
+
+    <!-- Input Form -->
+    <div class="col-lg-4">
+      <div class="card calc-card p-4">
+        <h5 class="mb-3 fw-bold"><i class="bi bi-sliders me-2 text-primary"></i>Lease Parameters</h5>
+        <form id="calcForm">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Aircraft Type</label>
+            <input type="text" class="form-control" id="aircraftType" value="Airbus A320neo" placeholder="e.g. Airbus A320neo">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Monthly Payment (USD)</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" id="monthlyPayment" value="355000" min="1000" step="1000">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Lease Term (months)</label>
+            <input type="number" class="form-control" id="leaseTerm" value="144" min="12" max="360">
+            <div class="form-text">12 months = 1 year · 144 = 12 years</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Incremental Borrowing Rate (IBR) %</label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="ibrPct" value="8.5" min="0.1" max="50" step="0.1">
+              <span class="input-group-text">%</span>
+            </div>
+            <div class="form-text">IFRS 16 §26 — use lessee's IBR if implicit rate not determinable</div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Commencement Date</label>
+            <input type="date" class="form-control" id="commencement" value="{{ today }}">
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+            <i class="bi bi-play-fill me-2"></i>Calculate Lease Schedule
+          </button>
+        </form>
+
+        <!-- Quick presets -->
+        <div class="mt-4">
+          <div class="text-muted small fw-semibold mb-2">Quick Presets:</div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-outline-secondary preset" data-type="Airbus A320neo" data-pay="355000" data-term="144" data-ibr="8.5">A320neo</button>
+            <button class="btn btn-sm btn-outline-secondary preset" data-type="Boeing 737 MAX 8" data-pay="340000" data-term="144" data-ibr="6.0">B737 MAX 8</button>
+            <button class="btn btn-sm btn-outline-secondary preset" data-type="Airbus A321neo" data-pay="430000" data-term="144" data-ibr="7.5">A321neo</button>
+            <button class="btn btn-sm btn-outline-secondary preset" data-type="Boeing B787-9" data-pay="820000" data-term="144" data-ibr="5.5">B787-9</button>
+            <button class="btn btn-sm btn-outline-secondary preset" data-type="Airbus A350-900" data-pay="850000" data-term="144" data-ibr="4.8">A350-900</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="col-lg-8" id="results" style="display:none">
+
+      <!-- Verdict -->
+      <div id="verdictBox" class="mb-4 p-3"></div>
+
+      <!-- Key Metrics -->
+      <div class="section-header mb-3"><i class="bi bi-bar-chart-fill me-2"></i>Key Lease Metrics</div>
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card text-center p-3 border-0 shadow-sm">
+            <div class="text-muted small">Initial PV (Lease Liability)</div>
+            <div class="fw-bold fs-5 text-primary" id="mInitialPv">—</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center p-3 border-0 shadow-sm">
+            <div class="text-muted small">Total Interest Cost</div>
+            <div class="fw-bold fs-5 text-danger" id="mTotalInterest">—</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center p-3 border-0 shadow-sm">
+            <div class="text-muted small">Interest as % of PV</div>
+            <div class="fw-bold fs-5" id="mInterestRatio">—</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center p-3 border-0 shadow-sm">
+            <div class="text-muted small">Monthly EIR</div>
+            <div class="fw-bold fs-5" id="mMonthlyRate">—</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center p-3 border-0 shadow-sm">
+            <div class="text-muted small">Total Payments</div>
+            <div class="fw-bold fs-5" id="mTotalPayments">—</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center p-3 border-0 shadow-sm">
+            <div class="text-muted small">Current Liability</div>
+            <div class="fw-bold fs-5 text-warning" id="mCurrentLiab">—</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center p-3 border-0 shadow-sm">
+            <div class="text-muted small">Current ROU Asset</div>
+            <div class="fw-bold fs-5 text-success" id="mCurrentRou">—</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card text-center p-3 border-0 shadow-sm">
+            <div class="text-muted small">YTD Interest</div>
+            <div class="fw-bold fs-5" id="mYtdInterest">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Tables -->
+      <div class="section-header green mb-3"><i class="bi bi-table me-2"></i>Amortisation Schedule (First 3 + Last 3 Periods)</div>
+      <div class="table-responsive mb-2">
+        <table class="table table-sm table-hover schedule-table">
+          <thead>
+            <tr>
+              <th>Period</th><th>Date</th><th>Opening Liability</th>
+              <th>Interest (EIR)</th><th>Principal</th><th>Closing Liability</th><th>ROU Asset</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+      <p class="text-muted small">EIR = Effective Interest Rate method per IFRS 16 §36. Depreciation = straight-line over lease term.</p>
+
+    </div>
+
+    <!-- Placeholder when no results -->
+    <div class="col-lg-8" id="placeholder">
+      <div class="card border-0 shadow-sm p-5 text-center text-muted">
+        <i class="bi bi-calculator display-3 mb-3 text-primary opacity-50"></i>
+        <h5>Enter lease parameters and click Calculate</h5>
+        <p>Results will show full IFRS 16 amortisation schedule, current lease liability, right-of-use asset, and a profit/loss assessment.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fmtN = v => new Intl.NumberFormat('en-GB', {minimumFractionDigits:0, maximumFractionDigits:0}).format(v);
+const fmtP = v => v.toFixed(4) + '%';
+
+document.querySelectorAll('.preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('aircraftType').value   = btn.dataset.type;
+    document.getElementById('monthlyPayment').value = btn.dataset.pay;
+    document.getElementById('leaseTerm').value      = btn.dataset.term;
+    document.getElementById('ibrPct').value         = btn.dataset.ibr;
+  });
+});
+
+document.getElementById('calcForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const body = {
+    aircraft_type:      document.getElementById('aircraftType').value,
+    monthly_payment:    parseFloat(document.getElementById('monthlyPayment').value),
+    lease_term_months:  parseInt(document.getElementById('leaseTerm').value),
+    effective_rate:     parseFloat(document.getElementById('ibrPct').value) / 100,
+    commencement:       document.getElementById('commencement').value,
+  };
+  try {
+    const r = await fetch('/api/lease-calc', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (d.error) { alert('Error: ' + d.error); return; }
+
+    // Verdict
+    const vb = document.getElementById('verdictBox');
+    if (d.verdict === 'PROFITABLE') {
+      vb.className = 'verdict-profit';
+      vb.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i><strong>${d.aircraft_type} — LEASE IS FINANCIALLY SOUND</strong><br><small>${d.verdict_detail}</small>`;
+    } else {
+      vb.className = 'verdict-highcost';
+      vb.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i><strong>${d.aircraft_type} — HIGH INTEREST COST</strong><br><small>${d.verdict_detail}</small>`;
+    }
+
+    // Metrics
+    document.getElementById('mInitialPv').textContent     = '$' + fmtN(d.initial_pv);
+    document.getElementById('mTotalInterest').textContent  = '$' + fmtN(d.total_interest);
+    document.getElementById('mInterestRatio').textContent  = d.interest_ratio_pct.toFixed(1) + '%';
+    document.getElementById('mMonthlyRate').textContent    = d.monthly_rate_pct.toFixed(4) + '%';
+    document.getElementById('mTotalPayments').textContent  = '$' + fmtN(d.total_payments);
+    document.getElementById('mCurrentLiab').textContent    = '$' + fmtN(d.current_liability);
+    document.getElementById('mCurrentRou').textContent     = '$' + fmtN(d.current_rou);
+    document.getElementById('mYtdInterest').textContent    = '$' + fmtN(d.ytd_interest);
+
+    // Schedule table
+    const tbody = document.getElementById('scheduleBody');
+    tbody.innerHTML = '';
+    const addRows = (rows, label) => {
+      if (label) {
+        const sep = document.createElement('tr');
+        sep.innerHTML = `<td colspan="7" class="text-muted small fw-semibold py-1 ps-2" style="background:#f0f4ff">${label}</td>`;
+        tbody.appendChild(sep);
+      }
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.period}</td>
+          <td>${row.date}</td>
+          <td>$${fmtN(row.opening_liability)}</td>
+          <td class="text-danger">$${fmtN(row.interest)}</td>
+          <td>$${fmtN(row.principal)}</td>
+          <td class="fw-semibold">$${fmtN(row.closing_liability)}</td>
+          <td class="text-success">$${fmtN(row.rou_closing)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    };
+    addRows(d.first_3_periods, 'First 3 periods');
+    addRows(d.last_3_periods, 'Last 3 periods');
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('placeholder').style.display = 'none';
+  } catch(err) {
+    alert('Request failed: ' + err);
+  }
+});
+</script>
+{% endblock %}
