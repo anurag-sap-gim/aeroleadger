@@ -5,13 +5,9 @@ services:
     plan: free
     region: oregon
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: gunicorn app:app --workers 2 --threads 2 --worker-class gthread --timeout 120 --access-logfile - --error-logfile -
+    startCommand: gunicorn app:app --workers 1 --worker-class sync --timeout 120 --access-logfile - --error-logfile -
     healthCheckPath: /health
     autoDeploy: true
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.11.9"
       - key: SECRET_KEY
         generateValue: true
-      - key: WEB_CONCURRENCY
-        value: "2"
