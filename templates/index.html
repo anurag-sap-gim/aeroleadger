@@ -2,17 +2,29 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+
 <!-- Hero -->
 <div class="hero">
   <div class="container">
     <div class="row align-items-center">
       <div class="col-lg-8">
         <h1><i class="bi bi-airplane-engines-fill me-2"></i>Airline Accounting Dashboard</h1>
-        <p class="mb-0">Live foreign exchange rates · Balance sheet · Income statement · IFRS 16 lease positions</p>
+        <p class="mb-0">Real-time foreign exchange rates · Balance sheet · Income statement · IFRS 16 lease positions</p>
+        <div class="hero-meta">
+          <span class="hero-badge"><i class="bi bi-activity me-1"></i>Live FX</span>
+          <span class="hero-badge">IFRS 16</span>
+          <span class="hero-badge">IAS 21</span>
+          <span class="hero-badge">Ind AS 116</span>
+        </div>
       </div>
-      <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-        <span class="badge-live pulse me-2" id="srcBadge">LIVE</span>
-        <small id="lastUpdated" class="text-white-50">Fetching...</small>
+      <div class="col-lg-4 text-lg-end mt-3 mt-lg-0 d-flex flex-column align-items-lg-end gap-2">
+        <div class="d-flex align-items-center gap-2 justify-content-lg-end">
+          <span class="badge-live pulse" id="srcBadge"><span class="skeleton" style="width:30px;height:.8em"></span></span>
+          <small id="lastUpdated" class="text-white-50">Connecting…</small>
+        </div>
+        <a href="/download/excel" class="btn btn-sm btn-outline-light mt-1" id="heroDlBtn">
+          <i class="bi bi-download me-1"></i>Download Excel Report
+        </a>
       </div>
     </div>
   </div>
@@ -21,96 +33,140 @@
 <div class="container py-4">
 
   <!-- FX Rates -->
-  <div class="section-header mb-3"><i class="bi bi-currency-exchange me-2"></i>Foreign Exchange Rates — EUR Base (IAS 21 / IFRS 21)</div>
+  <div class="section-header mb-0"><i class="bi bi-currency-exchange"></i>Foreign Exchange Rates — EUR Base (IAS 21 / IFRS 21)</div>
   <div class="row g-3 mb-4" id="fxCards">
-    {% for ccy in ['USD','GBP','INR','SGD'] %}
+    {% for ccy, icon in [('USD','bi-currency-dollar'),('GBP','bi-currency-pound'),('INR','bi-currency-rupee'),('SGD','bi-coin')] %}
     <div class="col-6 col-md-3">
-      <div class="card fx-card h-100 p-3">
-        <div class="fx-currency">{{ ccy }} / EUR</div>
-        <div class="fx-rate" id="rate-{{ ccy }}">—</div>
-        <div class="text-muted small mt-1">1 EUR = <span id="rate-{{ ccy }}-val">—</span> {{ ccy }}</div>
+      <div class="fx-card h-100 p-3 card">
+        <div class="fx-currency"><i class="bi {{ icon }} me-1"></i>{{ ccy }} / EUR</div>
+        <div class="fx-rate" id="rate-{{ ccy }}"><span class="skeleton" style="width:100px;height:2rem;display:block"></span></div>
+        <div class="fx-rate-sub">1 EUR = <span id="rate-{{ ccy }}-val" class="fw-semibold">—</span> {{ ccy }}</div>
+        <div id="rate-{{ ccy }}-change" class="fx-change flat mt-2">—</div>
       </div>
     </div>
     {% endfor %}
   </div>
 
-  <!-- Balance Sheet + Income Statement -->
-  <div class="row g-3 mb-4">
-    <div class="col-12">
-      <div class="section-header green mb-3"><i class="bi bi-bank me-2"></i>Balance Sheet & Income Summary (EUR)</div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="card summary-card h-100">
-        <div class="card-header"><i class="bi bi-graph-up me-1"></i>Total Assets</div>
-        <div class="card-body text-navy" id="totalAssets">—</div>
-        <div class="card-footer text-muted small">EUR</div>
+  <!-- KPI Row -->
+  <div class="section-header green mb-0"><i class="bi bi-bank"></i>Balance Sheet &amp; Income Summary (EUR)</div>
+  <div class="row g-3 mb-4 mt-0">
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-block">
+        <div class="kpi-icon navy"><i class="bi bi-graph-up-arrow"></i></div>
+        <div>
+          <div class="kpi-label">Total Assets</div>
+          <div class="kpi-value" id="totalAssets"><span class="skeleton"></span></div>
+          <div class="kpi-sub">EUR</div>
+        </div>
       </div>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="card summary-card h-100">
-        <div class="card-header"><i class="bi bi-graph-down me-1"></i>Total Liabilities</div>
-        <div class="card-body" id="totalLiabilities">—</div>
-        <div class="card-footer text-muted small">EUR</div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-block">
+        <div class="kpi-icon red"><i class="bi bi-graph-down-arrow"></i></div>
+        <div>
+          <div class="kpi-label">Total Liabilities</div>
+          <div class="kpi-value" id="totalLiabilities"><span class="skeleton"></span></div>
+          <div class="kpi-sub">EUR</div>
+        </div>
       </div>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="card summary-card h-100">
-        <div class="card-header"><i class="bi bi-cash-stack me-1"></i>Net Equity</div>
-        <div class="card-body" id="netEquity">—</div>
-        <div class="card-footer text-muted small">EUR</div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-block">
+        <div class="kpi-icon green"><i class="bi bi-cash-stack"></i></div>
+        <div>
+          <div class="kpi-label">Net Equity</div>
+          <div class="kpi-value" id="netEquity"><span class="skeleton"></span></div>
+          <div class="kpi-sub">EUR</div>
+        </div>
       </div>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="card summary-card h-100" id="netIncomeCard">
-        <div class="card-header"><i class="bi bi-trophy me-1"></i>Net Income</div>
-        <div class="card-body" id="netIncome">—</div>
-        <div class="card-footer text-muted small" id="netIncomeLabel">EUR</div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-block">
+        <div class="kpi-icon amber"><i class="bi bi-bar-chart-line"></i></div>
+        <div>
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value" id="totalRevenue"><span class="skeleton"></span></div>
+          <div class="kpi-sub">EUR</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-block">
+        <div class="kpi-icon purple"><i class="bi bi-receipt-cutoff"></i></div>
+        <div>
+          <div class="kpi-label">Total Expenses</div>
+          <div class="kpi-value" id="totalExpenses"><span class="skeleton"></span></div>
+          <div class="kpi-sub">EUR</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-block" id="netIncomeBlock">
+        <div class="kpi-icon navy" id="netIncomeIcon"><i class="bi bi-trophy"></i></div>
+        <div>
+          <div class="kpi-label">Net Income</div>
+          <div class="kpi-value" id="netIncome"><span class="skeleton"></span></div>
+          <div class="kpi-sub" id="netIncomeLabel">EUR</div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- IFRS 16 Lease Positions -->
-  <div class="row g-3 mb-4">
-    <div class="col-12">
-      <div class="section-header purple mb-3"><i class="bi bi-airplane me-2"></i>IFRS 16 / Ind AS 116 Lease Positions (EUR)</div>
-    </div>
+  <div class="section-header purple mb-0"><i class="bi bi-airplane"></i>IFRS 16 / Ind AS 116 Lease Positions (EUR)</div>
+  <div class="row g-3 mb-4 mt-0">
     <div class="col-md-4">
-      <div class="card summary-card h-100">
-        <div class="card-header">Lease Liability</div>
-        <div class="card-body" id="leaseLiability">—</div>
-        <div class="card-footer text-muted small">Present value of remaining payments</div>
+      <div class="summary-card card h-100">
+        <div class="card-header"><i class="bi bi-hourglass-split me-1"></i>Lease Liability</div>
+        <div class="card-body text-tabular" id="leaseLiability"><span class="skeleton"></span></div>
+        <div class="card-footer">Present value of remaining payments</div>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card summary-card h-100">
-        <div class="card-header">Right-of-Use Assets</div>
-        <div class="card-body" id="rouAsset">—</div>
-        <div class="card-footer text-muted small">Net book value after depreciation</div>
+      <div class="summary-card card h-100">
+        <div class="card-header"><i class="bi bi-building me-1"></i>Right-of-Use Assets</div>
+        <div class="card-body text-tabular" id="rouAsset"><span class="skeleton"></span></div>
+        <div class="card-footer">Net book value after depreciation</div>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card summary-card h-100">
-        <div class="card-header">Revenue</div>
-        <div class="card-body" id="totalRevenue">—</div>
-        <div class="card-footer text-muted small">Passenger + Cargo + Ancillary</div>
+      <div class="summary-card card h-100" id="profitCard">
+        <div class="card-header"><i class="bi bi-pie-chart me-1"></i>Profit / Loss Status</div>
+        <div class="card-body text-tabular" id="profitStatus"><span class="skeleton"></span></div>
+        <div class="card-footer" id="profitLabel">Net income vs expenses</div>
       </div>
     </div>
   </div>
 
-  <!-- Quick links -->
-  <div class="row g-3">
+  <!-- Quick Links -->
+  <div class="row g-4 mb-2">
     <div class="col-md-6">
-      <div class="card border-0 shadow-sm p-4 h-100">
-        <h5><i class="bi bi-calculator text-primary me-2"></i>Aircraft Lease Calculator</h5>
-        <p class="text-muted">Input any aircraft, monthly rental, IBR%, and term. Get full IFRS 16 amortisation schedule with profit/loss verdict.</p>
-        <a href="/calculator" class="btn btn-primary">Open Calculator</a>
+      <div class="card border-0 shadow-sm h-100 p-0 overflow-hidden">
+        <div class="p-4 flex-grow-1">
+          <h5 class="fw-bold mb-2"><i class="bi bi-calculator text-primary me-2"></i>Aircraft Lease Calculator</h5>
+          <p class="text-muted mb-3">Input any aircraft, monthly rental, IBR%, and term. Get a full IFRS 16 amortisation schedule with profit/loss verdict instantly.</p>
+          <a href="/calculator" class="btn btn-primary rounded-pill px-4">
+            <i class="bi bi-arrow-right-circle me-1"></i>Open Calculator
+          </a>
+        </div>
+        <div style="background:linear-gradient(90deg,var(--navy),#1a4fa0);height:4px"></div>
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card border-0 shadow-sm p-4 h-100">
-        <h5><i class="bi bi-file-earmark-excel text-success me-2"></i>Download Full Excel Report</h5>
-        <p class="text-muted">Get the complete 13-sheet workbook — General Ledger, Parallel Ledgers (USD/GBP/INR/SGD), IFRS 16 schedules, FX revaluation, Air India A320neo analysis, and more.</p>
-        <a href="/download/excel" class="btn btn-success"><i class="bi bi-download me-1"></i>Download Excel</a>
+      <div class="download-card h-100">
+        <div class="mb-2">
+          <span class="download-pulse"></span>
+          <strong class="text-success fs-6">13-Sheet Excel Workbook — Ready Now</strong>
+        </div>
+        <p class="text-muted mb-3" style="font-size:.9rem">
+          General Ledger · Parallel Ledgers (USD/GBP/INR/SGD) · IFRS 16 Schedules · Forex Revaluation · Air India A320neo Analysis · Year-End Closing · Standards Reference
+        </p>
+        <a href="/download/excel" class="btn btn-success" id="dashDlBtn">
+          <i class="bi bi-cloud-arrow-down me-2"></i>Download Full Workbook
+        </a>
+        <div class="mt-2 text-muted" style="font-size:.75rem">
+          <i class="bi bi-shield-check me-1 text-success"></i>Saved directly to your Downloads folder
+        </div>
       </div>
     </div>
   </div>
@@ -120,22 +176,48 @@
 
 {% block scripts %}
 <script>
-const fmt = v => new Intl.NumberFormat('en-GB', {minimumFractionDigits:0, maximumFractionDigits:0}).format(v);
+const fmt   = v => new Intl.NumberFormat('en-GB', {minimumFractionDigits:0, maximumFractionDigits:0}).format(v);
 const fmtFX = v => new Intl.NumberFormat('en-GB', {minimumFractionDigits:4, maximumFractionDigits:4}).format(v);
+
+let prevRates = {};
+
+function fxChangeClass(ccy, val) {
+  const prev = prevRates[ccy];
+  if (prev === undefined) return 'flat';
+  if (val > prev) return 'up';
+  if (val < prev) return 'down';
+  return 'flat';
+}
+function fxChangeHTML(ccy, val) {
+  const cls = fxChangeClass(ccy, val);
+  const prev = prevRates[ccy];
+  const diff = prev !== undefined ? ((val - prev) / prev * 100).toFixed(4) : '0.0000';
+  const icons = { up: 'bi-arrow-up-short', down: 'bi-arrow-down-short', flat: 'bi-dash' };
+  const labels = { up: `+${diff}%`, down: `${diff}%`, flat: 'Flat' };
+  return `<i class="bi ${icons[cls]}"></i>${labels[cls]}`;
+}
 
 async function fetchRates() {
   try {
     const r = await fetch('/api/fx-rates');
     const d = await r.json();
     for (const [ccy, val] of Object.entries(d.rates)) {
-      const el = document.getElementById('rate-' + ccy);
-      const elV = document.getElementById('rate-' + ccy + '-val');
-      if (el)  el.textContent = fmtFX(val);
+      const el   = document.getElementById('rate-' + ccy);
+      const elV  = document.getElementById('rate-' + ccy + '-val');
+      const elC  = document.getElementById('rate-' + ccy + '-change');
+      if (el)  el.textContent  = fmtFX(val);
       if (elV) elV.textContent = fmtFX(val);
+      if (elC) {
+        const cls = fxChangeClass(ccy, val);
+        elC.className = `fx-change ${cls} mt-2`;
+        elC.innerHTML = fxChangeHTML(ccy, val);
+      }
     }
+    prevRates = {...prevRates, ...d.rates};
     const badge = document.getElementById('srcBadge');
-    badge.textContent = d.source.startsWith('Live') ? 'LIVE' : 'SIM';
-    badge.className = d.source.startsWith('Live') ? 'badge-live pulse' : 'badge-sim';
+    const isLive = d.source && d.source.startsWith('Live');
+    badge.textContent = isLive ? 'LIVE' : 'SIM';
+    badge.className = isLive ? 'badge-live pulse' : 'badge-sim';
     document.getElementById('lastUpdated').textContent = 'Updated ' + d.updated;
   } catch(e) {}
 }
@@ -144,17 +226,37 @@ async function fetchSummary() {
   try {
     const r = await fetch('/api/summary');
     const d = await r.json();
-    document.getElementById('totalAssets').textContent     = 'EUR ' + fmt(d.total_assets);
+    const ni = d.net_income;
+    document.getElementById('totalAssets').textContent      = 'EUR ' + fmt(d.total_assets);
     document.getElementById('totalLiabilities').textContent = 'EUR ' + fmt(d.total_liabilities);
     document.getElementById('netEquity').textContent        = 'EUR ' + fmt(d.net_equity);
-    document.getElementById('netIncome').textContent        = 'EUR ' + fmt(d.net_income);
+    document.getElementById('totalRevenue').textContent     = 'EUR ' + fmt(d.total_revenue);
+    document.getElementById('totalExpenses').textContent    = 'EUR ' + fmt(d.total_expenses);
+    document.getElementById('netIncome').textContent        = 'EUR ' + fmt(ni);
     document.getElementById('leaseLiability').textContent   = 'EUR ' + fmt(d.lease_liability);
     document.getElementById('rouAsset').textContent         = 'EUR ' + fmt(d.rou_asset);
-    document.getElementById('totalRevenue').textContent     = 'EUR ' + fmt(d.total_revenue);
-    const card = document.getElementById('netIncomeCard');
-    const lbl  = document.getElementById('netIncomeLabel');
-    card.querySelector('.card-body').className = 'card-body ' + (d.is_profit ? 'profit-positive' : 'profit-negative');
-    lbl.textContent = d.is_profit ? '✔ PROFIT' : '✖ LOSS';
+
+    const niEl    = document.getElementById('netIncome');
+    const niLabel = document.getElementById('netIncomeLabel');
+    const niIcon  = document.getElementById('netIncomeIcon');
+    const pcEl    = document.getElementById('profitStatus');
+    const pcLabel = document.getElementById('profitLabel');
+
+    if (d.is_profit) {
+      niEl.className    = 'kpi-value positive';
+      niIcon.className  = 'kpi-icon green';
+      niLabel.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>PROFIT';
+      pcEl.textContent  = '✔ PROFIT';
+      pcEl.className    = 'card-body profit-positive';
+      pcLabel.textContent = 'Net income is positive';
+    } else {
+      niEl.className    = 'kpi-value negative';
+      niIcon.className  = 'kpi-icon red';
+      niLabel.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-1"></i>LOSS';
+      pcEl.textContent  = '✖ LOSS';
+      pcEl.className    = 'card-body profit-negative';
+      pcLabel.textContent = 'Net income is negative';
+    }
   } catch(e) {}
 }
 
@@ -162,5 +264,10 @@ fetchRates();
 fetchSummary();
 setInterval(fetchRates,   15000);
 setInterval(fetchSummary, 15000);
+
+/* Download toast */
+document.querySelectorAll('#heroDlBtn, #dashDlBtn').forEach(btn => {
+  btn.addEventListener('click', () => showToast('Generating workbook — your download will start shortly…', 'info', 5000));
+});
 </script>
 {% endblock %}

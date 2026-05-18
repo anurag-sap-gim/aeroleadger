@@ -3,26 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AeroLedger — Real-time airline accounting intelligence: IFRS 16, IAS 21, live FX rates, lease schedules, and downloadable Excel workbooks.">
   <title>{% block title %}AeroLedger{% endblock %} — Airline Accounting Intelligence</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
   <div class="container">
-    <a class="navbar-brand" href="/"><i class="bi bi-airplane-fill me-2"></i>Aero<span>Ledger</span></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+    <a class="navbar-brand" href="/">
+      <span class="brand-icon"><i class="bi bi-airplane-fill"></i></span>Aero<span>Ledger</span>
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav ms-auto gap-2">
-        <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/calculator' %}active{% endif %}" href="/calculator"><i class="bi bi-calculator me-1"></i>Lease Calculator</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/about' %}active{% endif %}" href="/about"><i class="bi bi-info-circle me-1"></i>About</a></li>
-        <li class="nav-item ms-2">
-          <a class="btn btn-sm btn-outline-light" href="/download/excel">
+      <ul class="navbar-nav ms-auto gap-1 align-items-lg-center">
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == '/calculator' %}active{% endif %}" href="/calculator">
+            <i class="bi bi-calculator me-1"></i>Lease Calculator
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == '/about' %}active{% endif %}" href="/about">
+            <i class="bi bi-info-circle me-1"></i>About
+          </a>
+        </li>
+        <li class="nav-item ms-lg-2">
+          <a class="btn btn-sm btn-outline-light d-flex align-items-center gap-1" href="/download/excel" id="navDlBtn">
             <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
           </a>
         </li>
@@ -33,28 +51,50 @@
 
 {% block content %}{% endblock %}
 
-<footer class="mt-5">
+<!-- Footer -->
+<footer>
   <div class="container">
-    <div class="row">
-      <div class="col-md-5 mb-3">
-        <strong class="text-white"><i class="bi bi-airplane-fill me-1"></i>AeroLedger</strong>
-        <p class="mt-2">Real-time airline accounting intelligence. Built for finance professionals, aviation students, and aircraft enthusiasts.</p>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="footer-brand mb-2"><i class="bi bi-airplane-fill me-1"></i>Aero<span>Ledger</span></div>
+        <p class="mt-2 mb-0">Real-time airline accounting intelligence. Built for finance professionals, aviation students, and aircraft enthusiasts worldwide.</p>
       </div>
-      <div class="col-md-4 mb-3">
-        <strong class="text-white">Standards Applied</strong>
-        <p class="mt-2">IFRS 16 · IAS 21 / IFRS 21 · Ind AS 116 · ASC 842 · IATA AAG · IAS 23</p>
+      <div class="col-md-4">
+        <strong class="text-white d-block mb-2">Standards Applied</strong>
+        <p class="mb-0">IFRS 16 · IAS 21 / IFRS 21 · Ind AS 116 · ASC 842 · IATA AAG · IAS 23 · IFRS 9</p>
       </div>
-      <div class="col-md-3 mb-3 text-md-end">
-        <strong class="text-white">Disclaimer</strong>
-        <p class="mt-2">For educational and analytical purposes only. Not financial advice. FX rates sourced from <a href="https://frankfurter.dev" target="_blank">frankfurter.dev</a>.</p>
+      <div class="col-md-4">
+        <strong class="text-white d-block mb-2">FX Data</strong>
+        <p class="mb-0">Live rates from <a href="https://frankfurter.dev" target="_blank">frankfurter.dev</a> — refreshed every 15 seconds. For educational and analytical use only.</p>
       </div>
     </div>
-    <hr style="border-color:#444">
-    <p class="text-center mb-0">&copy; {{ now.year }} AeroLedger · Base currency: EUR · Data refreshes every 15 seconds</p>
+    <hr>
+    <p class="text-center mb-0">
+      &copy; {{ now.year }} AeroLedger &nbsp;·&nbsp; Base currency: EUR &nbsp;·&nbsp;
+      <span id="footerRefresh" class="text-muted">Data refreshes every 15 s</span>
+    </p>
   </div>
 </footer>
 
+<!-- Toast -->
+<div class="aero-toast" id="aeroToast"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ── Global toast utility ── */
+function showToast(msg, type = 'info', duration = 3500) {
+  const t = document.getElementById('aeroToast');
+  t.className = `aero-toast ${type}`;
+  t.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : type === 'error' ? 'x-circle-fill' : 'info-circle-fill'}"></i> ${msg}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+/* ── Download button feedback ── */
+document.getElementById('navDlBtn').addEventListener('click', function() {
+  showToast('Generating your Excel workbook — download will start shortly…', 'info', 5000);
+});
+</script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

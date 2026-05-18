@@ -1,17 +1,19 @@
 import datetime
 import os
+import secrets
 import sys
 import tempfile
 import threading
 import time
 from decimal import Decimal
 
-from flask import Flask, jsonify, render_template, request, send_file, abort
+from flask import Flask, jsonify, render_template, request, send_file, abort, after_this_request
 
 sys.path.insert(0, os.path.dirname(__file__))
 import airline_accounting as aa
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 
 
 @app.context_processor
@@ -98,6 +100,11 @@ _thread.start()
 # ---------------------------------------------------------------------------
 # Pages
 # ---------------------------------------------------------------------------
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok", "time": datetime.datetime.utcnow().isoformat()})
+
 
 @app.route("/")
 def index():
@@ -242,16 +249,36 @@ def api_lease_calc():
 
 @app.route("/download/excel")
 def download_excel():
+    tmp_path = None
     try:
-        tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
-        tmp.close()
+        fd, tmp_path = tempfile.mkstemp(suffix=".xlsx", prefix="aeroleadger_")
+        os.close(fd)
         writer = aa.WorkbookWriter(_ledger, _fx, _leases)
-        writer.write(tmp.name)
+        writer.write(tmp_path)
         filename = f"AeroLedger_{datetime.date.today().isoformat()}.xlsx"
-        return send_file(tmp.name, as_attachment=True,
-                         download_name=filename,
-                         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        @after_this_request
+        def remove_tmp(response):
+            try:
+                if tmp_path and os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
+            except Exception:
+                pass
+            return response
+
+        return send_file(
+            tmp_path,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            max_age=0,
+        )
     except Exception as e:
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except Exception:
+                pass
         abort(500, description=str(e))
 
 
